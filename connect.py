@@ -61,6 +61,9 @@ class IRCConn:
     def join(self, chan):
         self._send('JOIN {}'.format(chan))
     
+    def leave(self, chan):
+        self._send('PART {}'.format(chan))
+    
     def _send(self, msg):
         '''
         Send something (anything) to the IRC server.
@@ -131,11 +134,11 @@ class IRCConn:
         if cmd == '433':    # nick already in use
             self.nick += '_'
             self._send('NICK {}'.format(self.nick))
-        if cmd == '376':    # end of MOTD
+        elif cmd == '376':    # end of MOTD
             self.on_connect()
-        if cmd == '422':    # No MOTD file
+        elif cmd == '422':    # No MOTD file
             self.on_connect()
-        if cmd == 'PING':
+        elif cmd == 'PING':
             self.pong(' '.join(tokens))
         elif cmd == 'ERROR':
             self.handle_error(tokens)
