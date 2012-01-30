@@ -97,7 +97,7 @@ class IRCConn:
                     except (UnicodeEncodeError, UnicodeDecodeError):
                         self.handle_encoding_error()
                         return ''
-                    print('received: {}'.format(line)
+                    print('received: {}'.format(line))
                     return line
             buf.append(ch)
             if nxt_ch:
@@ -152,5 +152,5 @@ class IRCConn:
         print('encoding error encountered.')
     
     def handle_error(self, tokens):
-        print('error. tokens: {}'.format(tokens)
+        print('error. tokens: {}'.format(tokens))
         self.connect()
