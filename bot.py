@@ -12,11 +12,10 @@ The most significant changes:
 * Generalization of bot.Bot()
 * A few docstring additions
 * Cross-version Python compatibility
-* Removed command reloading
 
 --------------------------------------------------------------------------------
 
-2012 by Daniel Foerster <pydsigner@gmail.com> and redistributable under the 
+(c) 2012 by Daniel Foerster <pydsigner@gmail.com> and redistributable under the 
 LGPL.
 
 --------------------------------------------------------------------------------
