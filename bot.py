@@ -12,6 +12,7 @@ The most significant changes:
 * Generalization of bot.Bot()
 * A few docstring additions
 * Cross-version Python compatibility
+* Removed command reloading
 
 --------------------------------------------------------------------------------
 
@@ -23,29 +24,23 @@ LGPL.
 This is a base for an IRC bot.
 '''
 
-from imp import reload
-
 import connect
 
 class Bot:
     '''
     An IRC bot interface.
     '''
-    def __init__(self, config):
+    def __init__(self, config, ident):
         '''
-        @config must be a module with a CommandLib() class that presents a 
-        particular interface.
-        TODO: Describe the CommandLib() interface
+        @config must be a class that presents a particular interface.
+        TODO: Describe the @config interface
         '''
         self.config = config
-        self.ident = config.Identity()
+        self.ident = ident()
         self.conn = connect.IRCConn(self)
-        self.cmds = config.CommandLib(self)
+        self.cmds = config(self)
         self.conn.connect()
         self.conn.mainloop()
-    
-    def reload_cmds(self):
-        self.cmds = reload(self.config).CommandLib(self)
     
     def handle_privmsg(self, tokens, sender):
         chan = tokens.pop(0)

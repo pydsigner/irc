@@ -12,6 +12,7 @@ The most significant changes:
 * Generalization of bot.Bot()
 * A few docstring additions
 * Cross-version Python compatibility
+* Removed command reloading
 
 --------------------------------------------------------------------------------
 
