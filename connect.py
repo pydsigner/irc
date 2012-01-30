@@ -79,8 +79,11 @@ class IRCConn:
         for line in msg.splitlines():
             self._send('PRIVMSG {} :{}{}'.format(chan, prefix, line))
     
+    def ident(self, pswd):
+        self.say('identify {}'.format(pswd), 'NickServ')
+    
     def describe(self, msg, chan):
-        self.say(self, '\x01ACTION %s\x01' % msg, chan)
+        self.say('\x01ACTION %s\x01' % msg, chan)
     
     def pong(self, trail):
         self._send('PONG {}'.format(trail))
