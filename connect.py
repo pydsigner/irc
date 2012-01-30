@@ -40,8 +40,8 @@ class IRCConn(object):
     def join(self, chan):
         self._send('JOIN {}'.format(chan))
     
-    def leave(self, chan):
-        self._send('PART {}'.format(chan))
+    def leave(self, msg, chan):
+        self._send('PART {} :{}'.format(chan, msg))
     
     def _send(self, msg):
         '''
