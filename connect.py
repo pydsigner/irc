@@ -25,7 +25,7 @@ This is the core connection manager.
 
 from socket import socket, AF_INET, SOCK_STREAM
 
-class IRCConn:
+class IRCConn(object):
     
     '''
     This class handles the connection with the IRC server.

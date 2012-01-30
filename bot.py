@@ -25,7 +25,7 @@ This is a base for an IRC bot.
 
 import connect
 
-class Bot:
+class Bot(object):
     '''
     An IRC bot interface.
     '''
