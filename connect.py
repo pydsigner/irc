@@ -75,7 +75,10 @@ class IRCConn:
         prefix = '' if to is None else '{}: '.format(to)
         for line in msg.splitlines():
             self._send('PRIVMSG {} :{}{}'.format(chan, prefix, line))
-
+    
+    def describe(self, msg, chan):
+        self.say(self, '\x01ACTION %s\x01' % msg, chan)
+    
     def pong(self, trail):
         self._send('PONG {}'.format(trail))
     
@@ -129,6 +132,8 @@ class IRCConn:
             self.nick += '_'
             self._send('NICK {}'.format(self.nick))
         if cmd == '376':    # end of MOTD
+            self.on_connect()
+        if cmd == '422':    # No MOTD file
             self.on_connect()
         if cmd == 'PING':
             self.pong(' '.join(tokens))
