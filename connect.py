@@ -21,6 +21,7 @@ class IRCConn(object):
         self.nick = i.nick
         self.join_first = i.joins
         self.port = 6667
+        self.channels = set()
     
     def connect(self):
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -39,10 +40,13 @@ class IRCConn(object):
     
     def join(self, chan):
         self._send('JOIN {}'.format(chan))
+        self.channels.add(chan)
         self.handler.handle_join(chan)
     
     def leave(self, msg, chan):
         self._send('PART {} :{}'.format(chan, msg))
+        if chan in self.channels:
+            self.channels.remove(chan)
     
     def _send(self, msg):
         '''
