@@ -16,7 +16,7 @@ class Bot(object):
         '''
         self.ident = ident()
         self.conn = connect.IRCConn(self)
-        self.cmds = config(self)
+        self.cmds = com(self)
         self.conn.connect()
         self.conn.mainloop()
     
