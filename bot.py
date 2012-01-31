@@ -54,7 +54,7 @@ class Bot(object):
             func(channel)
         
     def handle_other_join(self, tokens, joiner):
-        chan = tokens.pop()
+        chan = tokens.pop().strip(':')
         nick, host = joiner.split('!')
         data = {'channel': chan, 'joiner': joiner, 'nick': nick, 'host': host}
         for func in getattr(self.cmds, 'other_join_funcs', []):
