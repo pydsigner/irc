@@ -41,19 +41,23 @@ class Bot(object):
         except IndexError:
             args = []
         
-        if is_to_me and (cmd in self.cmds.addr_funcs):
+        if is_to_me and (cmd in getattr(self.cmds, 'addr_funcs', {})):
             self.cmds.addr_funcs[cmd](args, data)
-        elif cmd in self.cmds.unaddr_funcs:
+        elif cmd in getattr(self.cmds, 'unaddr_funcs', {}):
             self.cmds.unaddr_funcs[cmd](args, data)
         else:
-            for func in self.cmds.all_privmsg_funcs:
+            for func in getattr(self.cmds, 'all_privmsg_funcs', []):
                 func(tokens, data)
+        
+    def handle_join(self, channel):
+        for func in getattr(self.cmds, 'on_join_funcs', []):
+            func(channel)
         
     def handle_other_join(self, tokens, joiner):
         chan = tokens.pop()
         nick, host = joiner.split('!')
         data = {'channel': chan, 'joiner': joiner, 'nick': nick, 'host': host}
-        for func in self.cmds.other_join_funcs:
+        for func in getattr(self.cmds, 'other_join_funcs', []):
             func(data)
 
 class BunBot(Bot):
