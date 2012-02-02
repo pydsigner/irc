@@ -130,6 +130,8 @@ class IRCConn(object):
             self.pong(' '.join(tokens))
         elif cmd == 'ERROR':
             self.handle_error(tokens)
+        elif cmd == 'KICK':
+            self.handler.handle_kick(tokens, prefix)
         elif cmd == 'JOIN':
             if prefix.split('!')[0] != self.nick:
                 self.handler.handle_other_join(tokens, prefix)

@@ -28,7 +28,7 @@ class Bot(object):
         else:
             is_to_me = False
 
-        nick, host = sender.split('!')        
+        nick, host = sender.split('!')
         if chan == self.ident.nick:
             chan = nick
         data = {'channel': chan, 'sender': sender, 'is_to_me': is_to_me,
@@ -58,6 +58,25 @@ class Bot(object):
         data = {'channel': chan, 'joiner': joiner, 'nick': nick, 'host': host}
         for func in getattr(self.cmds, 'other_join_funcs', []):
             func(data)
+    
+    def handle_kick(self, tokens, sender):
+        chan = tokens.pop(0)
+        tokens[0] = tokens[0].strip(':')
+        if tokens[0] == self.ident.nick:
+            tokens.pop(0)
+            is_about_me = True
+        else:
+            is_about_me = False
+        
+        nick, host = sender.split('!')
+        data = {'channel': chan, 'sender': sender, 'nick': nick, 'host': host, 'kickee': tokens.pop(0)}
+        msg = tokens[0].lstrip(':') if tokens else None
+        if is_about_me: 
+            for func in getattr(self.cmds, 'on_kicked_funcs', []):
+                func(msg, data)
+        else:
+            for func in getattr(self.cmds, 'other_kicked_funcs', []):
+                func(msg, data)
     
     def main(self):
         'Run the mainloop.'
