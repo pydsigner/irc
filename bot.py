@@ -23,9 +23,10 @@ class Bot(object):
         chan = tokens.pop(0)
         tokens[0] = tokens[0].strip(':')
         if tokens[0] == self.ident.nick:
-            tokens.pop(0)
+            l = [tokens.pop(0)]
             is_to_me = True
         else:
+            l = []
             is_to_me = False
 
         nick, host = sender.split('!')
@@ -46,7 +47,7 @@ class Bot(object):
             self.cmds.unaddr_funcs[cmd](args, data)
         else:
             for func in getattr(self.cmds, 'all_privmsg_funcs', []):
-                func(tokens, data)
+                func(l + tokens, data)
         
     def handle_join(self, channel):
         for func in getattr(self.cmds, 'on_join_funcs', []):
