@@ -18,7 +18,6 @@ class Bot(object):
         self.conn = connect.IRCConn(self)
         self.cmds = com(self)
         self.conn.connect()
-        self.conn.mainloop()
     
     def handle_privmsg(self, tokens, sender):
         chan = tokens.pop(0)
@@ -59,6 +58,10 @@ class Bot(object):
         data = {'channel': chan, 'joiner': joiner, 'nick': nick, 'host': host}
         for func in getattr(self.cmds, 'other_join_funcs', []):
             func(data)
+    
+    def main(self):
+        'Run the mainloop.'
+        self.conn.mainloop()
 
 class BunBot(Bot):
     '''
@@ -74,6 +77,7 @@ class BunBot(Bot):
         
         Bot.__init__(self, confmod.CommandLib, confmod.Identity)
         self.config = confmod
+        self.main()
     
     def reload_cmds(self):
         self.cmds = reload(self.config).CommandLib(self)

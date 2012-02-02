@@ -3,6 +3,7 @@ This is the core connection manager.
 '''
 
 from socket import socket, AF_INET, SOCK_STREAM
+import thread
 
 class IRCConn(object):
     
@@ -141,7 +142,7 @@ class IRCConn(object):
         '''
         while True:
             line = self.receive()
-            self.parse(line)
+            thread.start_new_thread(self.parse, (line,))
 
     def handle_encoding_error(self):
         print('encoding error encountered.')
