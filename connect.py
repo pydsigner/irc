@@ -12,6 +12,8 @@ class IRCConn(object):
     It connects and sends and receives messages.
     '''
     
+    #### Initializers ########
+    
     def __init__(self, handler):
         self.handler = handler
         i = handler.ident
@@ -30,31 +32,16 @@ class IRCConn(object):
         self._send('USER {} {} {} :{}'.format(self.ident, self.host, self.serv, self.name))
         self._send('NICK {}'.format(self.nick))
         # wait until we have received the MOTD in full before proceeding
-
-    def on_connect(self):
-        '''
-        Called once we have connected to and identified with the server.
-        Mainly joins the channels that we want to join at the start.
-        '''
-        for chan in self.join_first:
-            self.join(chan)
     
-    def join(self, chan):
-        self._send('JOIN {}'.format(chan))
-        self.channels.add(chan)
-        self.handler.handle_join(chan)
-    
-    def leave(self, msg, chan):
-        self._send('PART {} :{}'.format(chan, msg))
-        if chan in self.channels:
-            self.channels.remove(chan)
-    
-    def _send(self, msg):
+    def mainloop(self):
         '''
-        Send something (anything) to the IRC server.
+        The mainloop.
         '''
-        print('sending: {}\r\n'.format(msg))
-        self.sock.send('{}\r\n'.format(msg).encode())
+        while True:
+            line = self.receive()
+            thread.start_new_thread(self.parse, (line,))
+    
+    #### Commands ############
     
     def say(self, msg, chan, to=None):
         '''
@@ -69,6 +56,51 @@ class IRCConn(object):
     
     def describe(self, msg, chan):
         self.say('\x01ACTION %s\x01' % msg, chan)
+    
+    def mode(self, mode, mask, chan):
+        self._send('MODE {} {} {}'.format(chan, mode, mask))
+    
+    # A few common mode shortcuts
+    def ban(self, mask, chan):
+        self.mode('+b', mask, chan)
+    def unban(self, mask, chan):
+        self.mode('-b', mask, chan)
+    def voice(self, mask, chan):
+        self.mode('+v', mask, chan)
+    def devoice(self, mask, chan):
+        self.mode('-v', mask, chan)
+    def op(self, mask, chan):
+        self.mode('+o', mask, chan)
+    def deop(self, mask, chan):
+        self.mode('-o', mask, chan)
+    
+    def kick(self, chan, nicks = [], reason = None):
+        if not nicks:
+            return
+        if reason is None:
+            r = ''
+        else:
+            r = ' :{}'.format(reason)
+        self._send('KICK {} {}{}'.format(chan, ','.join(nicks), r))
+    
+    def join(self, chan):
+        self._send('JOIN {}'.format(chan))
+        self.channels.add(chan)
+        self.handler.handle_join(chan)
+    
+    def leave(self, msg, chan):
+        self._send('PART {} :{}'.format(chan, msg))
+        if chan in self.channels:
+            self.channels.remove(chan)
+    
+    #### Internals ###########
+    
+    def _send(self, msg):
+        '''
+        Send something (anything) to the IRC server.
+        '''
+        print('sending: {}\r\n'.format(msg))
+        self.sock.send('{}\r\n'.format(msg).encode())
     
     def pong(self, trail):
         self._send('PONG {}'.format(trail))
@@ -137,14 +169,6 @@ class IRCConn(object):
                 self.handler.handle_other_join(tokens, prefix)
         elif cmd == 'PRIVMSG':
             self.handler.handle_privmsg(tokens, prefix)
-    
-    def mainloop(self):
-        '''
-        The mainloop.
-        '''
-        while True:
-            line = self.receive()
-            thread.start_new_thread(self.parse, (line,))
 
     def handle_encoding_error(self):
         print('encoding error encountered.')
@@ -152,3 +176,11 @@ class IRCConn(object):
     def handle_error(self, tokens):
         print('error. tokens: {}'.format(tokens))
         self.connect()
+    
+    def on_connect(self):
+        '''
+        Called once we have connected to and identified with the server.
+        Mainly joins the channels that we want to join at the start.
+        '''
+        for chan in self.join_first:
+            self.join(chan)
