@@ -48,7 +48,15 @@ class Bot(object):
         else:
             for func in getattr(self.cmds, 'all_privmsg_funcs', []):
                 func(l + tokens, data)
-        
+    
+    def handle_name_list(self, tokens):
+        tokens.pop(0)   # get rid of our nick from the beginning of the msg.
+        tokens.pop(0)   # get rid of the equals sign(?!)
+        chan = tokens.pop(0)
+        nicks = [t.lstrip(':') for t in tokens]
+        for func in getattr(self.cmds, 'on_name_list', []):
+            func(nicks, channel)
+    
     def handle_join(self, channel):
         for func in getattr(self.cmds, 'on_join_funcs', []):
             func(channel)
