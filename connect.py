@@ -14,13 +14,15 @@ def colorize(text, color):
 
 def bold(text):
     '''
-    Returns text @text formatted bold, which can then be embedded in a message.
+    Returns text @text with bold formatting, which can then be embedded in a 
+    message.
     '''
     return '\x02{}\x02'.format(text)
 
 def underline(text):
     '''
-    Returns text @text formatted bold, which can then be embedded in a message.
+    Returns text @text with underline formatting, which can then be embedded in 
+    a message.
     '''
     return '\x1f{}\x1f'.format(text)
 
@@ -100,6 +102,7 @@ class IRCConn(object):
         '''
         self.say('\x01ACTION {}\x01'.format(msg), chan)
     
+    
     def mode(self, mode, mask, chan):
         '''
         Set mode @mode for mask @mask on channel @channel.
@@ -112,31 +115,37 @@ class IRCConn(object):
         Ban mask @mask from channel @chan.
         '''
         self.mode('+b', mask, chan)
+    
     def unban(self, mask, chan):
         '''
         Unban mask @mask from channel @chan.
         '''
         self.mode('-b', mask, chan)
+    
     def voice(self, mask, chan):
         '''
         Give mask @mask voice on channel @chan.
         '''
         self.mode('+v', mask, chan)
+    
     def devoice(self, mask, chan):
         '''
         Take voice from mask @mask on channel @chan.
         '''
         self.mode('-v', mask, chan)
+    
     def op(self, mask, chan):
         '''
         Give mask @mask OP status on channel @chan.
         '''
         self.mode('+o', mask, chan)
+    
     def deop(self, mask, chan):
         '''
         Take OP status from mask @mask on channel @chan.
         '''
         self.mode('-o', mask, chan)
+    
     
     def kick(self, chan, nicks = [], reason = None):
         '''
