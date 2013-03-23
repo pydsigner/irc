@@ -1,4 +1,4 @@
-'''
+"""
 IRC: A general purpose IRC interface for Python
 
 IRC is based heavily on the Bunbot of Alan Bunbury (bunburya), available freely 
@@ -17,6 +17,8 @@ The changes below are not mentioned in the Git log:
 
 --------------------------------------------------------------------------------
 
-(c) 2012 by Daniel Foerster <pydsigner@gmail.com> and redistributable under the 
-LGPL.
-'''
+Copyright 2012-2013 by Daniel Foerster <pydsigner@gmail.com> and 
+redistributable under the LGPL.
+"""
+
+__version__ = '0.3.0'

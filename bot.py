@@ -1,19 +1,21 @@
-'''
+"""
 This is a base for an IRC bot.
-'''
+"""
 
 import connect
 from imp import reload
 
 class Bot(object):
-    '''
+    
+    """
     An IRC bot interface.
-    '''
+    """
+    
     def __init__(self, com, ident):
-        '''
+        """
         @com and @ident must be classes that presents a particular interface.
         TODO: Describe the @com and @ident interfaces
-        '''
+        """
         self.ident = ident()
         self.conn = connect.IRCConn(self)
         self.cmds = com(self)
@@ -88,20 +90,24 @@ class Bot(object):
                 func(msg, data)
     
     def main(self):
-        'Run the mainloop.'
+        """
+        Run the mainloop.
+        """
         self.conn.mainloop()
 
 class BunBot(Bot):
-    '''
+    
+    """
     An IRC bot interface compatible with bunburya's original bot. This Bot() 
     supports command reloading, but is more stringent in its setup requirements.
-    '''
+    """
+    
     def __init__(self, confmod):
-        '''
+        """
         @confmod must be a module with Identity() and CommandLib() classes. 
         These classes must follow the same protocol as the @ident and @com 
         arguments to Bot().
-        '''
+        """
         
         Bot.__init__(self, confmod.CommandLib, confmod.Identity)
         self.config = confmod
