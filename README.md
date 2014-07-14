@@ -1,5 +1,4 @@
-IRC: A general purpose IRC interface for Python
-===============================================
+### IRC: A general purpose IRC interface for Python
 
 IRC is based heavily on the Bunbot of Alan Bunbury (bunburya), available freely
 from GitHub (https://github.com/bunburya/bunbot). The code was fetched on
