@@ -16,5 +16,5 @@ The changes below are not mentioned in the Git log:
 
 --------------------------------------------------------------------------------
 
-Copyright 2012-2013 by Daniel Foerster <pydsigner@gmail.com> and
-redistributable under the LGPL.
+Copyright 2012-2013 by Daniel Foerster <pydsigner@gmail.com> under the LGPLv3.
+Copyright 2015 by Daniel Foerster <pydsigner@gmail.com> under the Apache License 2.0.
