@@ -3,7 +3,7 @@ This is a base for an IRC bot.
 """
 
 import connect
-from imp import reload
+
 
 class Bot(object):
     
