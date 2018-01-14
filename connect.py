@@ -3,7 +3,10 @@ This is the core connection manager.
 """
 
 from socket import socket, AF_INET, SOCK_STREAM
-import thread
+try:
+    import thread
+except ImportError:
+    import _thread as thread
 
 
 def colorize(text, color):
