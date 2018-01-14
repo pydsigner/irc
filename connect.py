@@ -11,7 +11,7 @@ except ImportError:
 
 def colorize(text, color):
     """
-    Adds color (code @color) to text @text, which can then be embedded in a 
+    Adds color (code @color) to text @text, which can then be embedded in a
     message.
     """
     # \x03<zero-padded-to-width-2-color><text>\x03
@@ -20,7 +20,7 @@ def colorize(text, color):
 
 def bold(text):
     """
-    Returns text @text with bold formatting, which can then be embedded in a 
+    Returns text @text with bold formatting, which can then be embedded in a
     message.
     """
     # \x02<text>\x02
@@ -29,7 +29,7 @@ def bold(text):
 
 def underline(text):
     """
-    Returns text @text with underline formatting, which can then be embedded in 
+    Returns text @text with underline formatting, which can then be embedded in
     a message.
     """
     # \x1f<text>\x1f
@@ -37,14 +37,14 @@ def underline(text):
 
 
 class IRCConn(object):
-    
+
     """
     This class handles the connection with the IRC server.
     It connects and sends and receives messages.
     """
-    
+
     #### Initializers ########
-    
+
     def __init__(self, handler):
         self.handler = handler
         i = handler.ident
@@ -56,15 +56,15 @@ class IRCConn(object):
         self.join_first = i.joins
         self.port = getattr(i, 'port', 6667)
         self.channels = set()
-    
+
     def connect(self):
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.connect((self.host, self.port))
-        self._send('USER %s %s %s :%s' % 
+        self._send('USER %s %s %s :%s' %
                    (self.ident, self.host, self.serv, self.name))
         self._send('NICK %s' % self.nick)
         # wait until we have received the MOTD in full before proceeding
-    
+
     def mainloop(self):
         """
         The mainloop.
@@ -74,9 +74,9 @@ class IRCConn(object):
             line = self.receive()
             # Yeah, threading. TODO: Allow disabling?
             thread.start_new_thread(self.parse, (line,))
-    
+
     #### Commands ############
-    
+
     def say(self, msg, chan, to=None):
         """
         Say @msg on @chan.
@@ -85,99 +85,99 @@ class IRCConn(object):
             prefix = ''
         else:
             to = '%s: ' % to
-        
+
         for line in msg.splitlines():
             self._send('PRIVMSG %s :%s%s' % (chan, prefix, line))
-    
+
     def whois(self, nick):
         """
         Send a WHOIS command for nick @nick.
         """
         self._send('WHOIS %s' % nick)
-    
+
     def who(self, chan_nick):
         """
         Send a WHO command for nick or channel @chan_nick.
         """
         self._send('WHO %s' % chan_nick)
-    
+
     def names(self, chan):
         """
         Send a NAMES command for channel @chan.
         """
         self._send('NAMES %s' % chan)
-    
+
     def ident(self, pswd):
         """
         Do a NickServ identify with @pswd.
         """
         self.say('identify %s' % pswd, 'NickServ')
-    
+
     def describe(self, msg, chan):
         """
         Describe the user as doing @msg on channel @chan.
         """
         self.say('\x01ACTION %s\x01' % msg, chan)
-    
-    
+
+
     def mode(self, mode, mask, chan):
         """
         Set mode @mode for mask @mask on channel @channel.
         """
         self._send('MODE %s %s %s' % (chan, mode, mask))
-    
+
     # A few common mode shortcuts
     def ban(self, mask, chan):
         """
         Ban mask @mask from channel @chan.
         """
         self.mode('+b', mask, chan)
-    
+
     def unban(self, mask, chan):
         """
         Unban mask @mask from channel @chan.
         """
         self.mode('-b', mask, chan)
-    
+
     def voice(self, mask, chan):
         """
         Give mask @mask voice on channel @chan.
         """
         self.mode('+v', mask, chan)
-    
+
     def devoice(self, mask, chan):
         """
         Take voice from mask @mask on channel @chan.
         """
         self.mode('-v', mask, chan)
-    
+
     def op(self, mask, chan):
         """
         Give mask @mask OP status on channel @chan.
         """
         self.mode('+o', mask, chan)
-    
+
     def deop(self, mask, chan):
         """
         Take OP status from mask @mask on channel @chan.
         """
         self.mode('-o', mask, chan)
-    
-    
+
+
     def kick(self, chan, nicks=[], reason=None):
         """
         Kick nicks @nicks from channel @chan for reason @reason.
         """
         if not nicks:
             return
-        
+
         if reason is None:
             r = ''
         else:
             r = ' :%s' % reason
-        
+
         self._send('KICK %s %s%s' % (chan, ','.join(nicks), r))
-    
+
     def join(self, chan):
         """
         Join channel @chan.
@@ -185,7 +185,7 @@ class IRCConn(object):
         self._send('JOIN %s' % chan)
         self.channels.add(chan)
         self.handler.handle_join(chan)
-    
+
     def leave(self, msg, chan):
         """
         Leave channel @chan with reason @msg.
@@ -193,19 +193,19 @@ class IRCConn(object):
         self._send('PART %s :%s' % (chan, msg))
         if chan in self.channels:
             self.channels.remove(chan)
-    
+
     #### Internals ###########
-    
+
     def _send(self, msg):
         """
         Send something (anything) to the IRC server.
         """
         print('Sending: %s\r\n' % msg)
         self.sock.send(('%s\r\n' % msg).encode())
-    
+
     def pong(self, trail):
         self._send('PONG %s' % trail)
-    
+
     def receive(self):
         """
         Read from the socket until we reach the end of an IRC message.
@@ -229,7 +229,7 @@ class IRCConn(object):
             buf.append(ch)
             if nxt_ch:
                 buf.append(nxt_ch)
-            
+
         if not line.strip():
             return None
         else:
@@ -239,7 +239,7 @@ class IRCConn(object):
                 return parsable
             except (UnicodeEncodeError, UnicodeDecodeError):
                 self.handle_encoding_error()
-    
+
     def parse(self, line):
         if not line:
             # empty line; this should throw up an error.
@@ -250,7 +250,7 @@ class IRCConn(object):
             prefix = tokens.pop(0)[1:].strip(':')
         else:
             prefix = ''
-        
+
         # Apparently, mIRC does not send uppercase commands (from Twisted's IRC)
         cmd = tokens.pop(0).upper()
         if cmd == '433':       # nick already in use
@@ -276,11 +276,11 @@ class IRCConn(object):
 
     def handle_encoding_error(self):
         print('Encoding error encountered.')
-    
+
     def handle_error(self, tokens):
         print('Error. tokens: %s' % tokens)
         self.connect()
-    
+
     def on_connect(self):
         """
         Called once we have connected to and identified with the server.
