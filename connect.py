@@ -54,7 +54,7 @@ class IRCConn(object):
         self.name = i.name
         self.nick = i.nick
         self.join_first = i.joins
-        self.port = 6667
+        self.port = getattr(i, 'port', 6667)
         self.channels = set()
     
     def connect(self):
