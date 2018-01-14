@@ -53,6 +53,8 @@ class IRCConn(object):
         self.host = i.host
         self.name = i.name
         self.nick = i.nick
+        self.server_pass = getattr(i, 'server_pass', None)
+        self.nickserv_pass = getattr(i, 'nickserv_pass', None)
         self.join_first = i.joins
         self.port = getattr(i, 'port', 6667)
         self.channels = set()
@@ -62,6 +64,8 @@ class IRCConn(object):
         self.sock.connect((self.host, self.port))
         self._send('USER %s %s %s :%s' %
                    (self.ident, self.host, self.serv, self.name))
+        if self.server_pass:
+            self._send('PASS %s:%s' % (self.ident, self.server_pass))
         self._send('NICK %s' % self.nick)
         # wait until we have received the MOTD in full before proceeding
 
@@ -107,7 +111,7 @@ class IRCConn(object):
         """
         self._send('NAMES %s' % chan)
 
-    def ident(self, pswd):
+    def identify(self, pswd):
         """
         Do a NickServ identify with @pswd.
         """
@@ -286,5 +290,7 @@ class IRCConn(object):
         Called once we have connected to and identified with the server.
         Mainly joins the channels that we want to join at the start.
         """
+        if self.nickserv_pass:
+            self.identify(self.nickserv_pass)
         for chan in self.join_first:
             self.join(chan)
