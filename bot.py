@@ -57,7 +57,7 @@ class Bot(object):
         chan = tokens.pop(0)
         nicks = [t.lstrip(':') for t in tokens]
         for func in getattr(self.cmds, 'on_name_list', []):
-            func(nicks, channel)
+            func(nicks, chan)
 
     def handle_join(self, channel):
         for func in getattr(self.cmds, 'on_join_funcs', []):
