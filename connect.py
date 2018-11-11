@@ -56,6 +56,7 @@ class IRCConn(object):
         self.name = i.name
         self.nick = i.nick
         self.server_pass = getattr(i, 'server_pass', None)
+        self.simple_pass = getattr(i, 'simple_pass', False)
         self.nickserv_pass = getattr(i, 'nickserv_pass', None)
         self.join_first = i.joins
         self.channels = set()
@@ -67,7 +68,10 @@ class IRCConn(object):
         self._send('USER %s %s %s :%s' %
                    (self.ident, self.host, self.serv, self.name))
         if self.server_pass:
-            self._send('PASS %s:%s' % (self.ident, self.server_pass))
+            if self.simple_pass:
+                self._send('PASS %s' % self.server_pass)
+            else:
+                self._send('PASS %s:%s' % (self.ident, self.server_pass))
         self._send('NICK %s' % self.nick)
         # wait until we have received the MOTD in full before proceeding
 
