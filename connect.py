@@ -51,16 +51,18 @@ class IRCConn(object):
         self.ident = i.ident
         self.serv = i.serv
         self.host = i.host
+        self.port = getattr(i, 'port', 6667)
+        self.reconnect = getattr(i, 'reconnect', True)
         self.name = i.name
         self.nick = i.nick
         self.server_pass = getattr(i, 'server_pass', None)
         self.nickserv_pass = getattr(i, 'nickserv_pass', None)
         self.join_first = i.joins
-        self.port = getattr(i, 'port', 6667)
         self.channels = set()
 
     def connect(self):
         self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock.settimeout(300)
         self.sock.connect((self.host, self.port))
         self._send('USER %s %s %s :%s' %
                    (self.ident, self.host, self.serv, self.name))
@@ -75,9 +77,16 @@ class IRCConn(object):
         """
         # Rather than `while True:` for speed
         while 1:
-            line = self.receive()
-            # Yeah, threading. TODO: Allow disabling?
-            thread.start_new_thread(self.parse, (line,))
+            try:
+                line = self.receive()
+            except OSError:
+                if self.reconnect:
+                    self.connect()
+                else:
+                    raise
+            else:
+                # Yeah, threading. TODO: Allow disabling?
+                thread.start_new_thread(self.parse, (line,))
 
     #### Commands ############
 
