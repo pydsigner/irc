@@ -229,6 +229,8 @@ class IRCConn(object):
         Attempt to decode the message and return it.
         Call handle_encoding_error() if unsuccessful.
         """
+        import time
+        start = time.time()
         buf = []
         while True:
             nxt_ch = None
@@ -240,15 +242,20 @@ class IRCConn(object):
                         line = b''.join(buf).decode()
                     except (UnicodeEncodeError, UnicodeDecodeError):
                         self.handle_encoding_error()
-                        return ''
+                        return
                     print('received: %s' % line)
                     return line
-            buf.append(ch)
-            if nxt_ch:
-                buf.append(nxt_ch)
+            try:
+                if ch:
+                    buf.append(ch)
+                if nxt_ch:
+                    buf.append(nxt_ch)
+            except MemoryError:
+                print('Buffer overflow with %s chunks after %s seconds!' % (len(buf), time.time() - start))
+                return
 
         if not line.strip():
-            return None
+            return
         else:
             try:
                 parsable = line.strip(b'\r\n').decode()
