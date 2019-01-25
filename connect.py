@@ -2,6 +2,7 @@
 This is the core connection manager.
 """
 
+import time
 from socket import socket, AF_INET, SOCK_STREAM
 try:
     import thread
@@ -34,6 +35,12 @@ def underline(text):
     """
     # \x1f<text>\x1f
     return '\x1f%s\x1f' % text
+
+
+class NetworkError(Exception):
+    """
+    Exception for network disconnects or fatal staleness.
+    """
 
 
 class IRCConn(object):
@@ -83,7 +90,7 @@ class IRCConn(object):
         while 1:
             try:
                 line = self.receive()
-            except OSError:
+            except NetworkError:
                 if self.reconnect:
                     self.connect()
                 else:
@@ -229,14 +236,19 @@ class IRCConn(object):
         Attempt to decode the message and return it.
         Call handle_encoding_error() if unsuccessful.
         """
-        import time
         start = time.time()
         buf = []
         while True:
             nxt_ch = None
-            ch = self.sock.recv(1)
+            try:
+                ch = self.sock.recv(1)
+            except OSError:
+                raise NetworkError
             if ch == b'\r':
-                nxt_ch = self.sock.recv(1)
+                try:
+                    nxt_ch = self.sock.recv(1)
+                except OSError:
+                    raise NetworkError
                 if nxt_ch == b'\n':
                     try:
                         line = b''.join(buf).decode()
@@ -250,9 +262,9 @@ class IRCConn(object):
                     buf.append(ch)
                 if nxt_ch:
                     buf.append(nxt_ch)
-            except MemoryError:
+            except MemoryError as e:
                 print('Buffer overflow with %s chunks after %s seconds!' % (len(buf), time.time() - start))
-                return
+                raise NetworkError
 
         if not line.strip():
             return
